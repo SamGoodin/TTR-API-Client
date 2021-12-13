@@ -15,10 +15,11 @@ class Client:
     def run_client(self):
         while True:
             for call in self.api_calls:
-                data = call()
+                data, name = call()
                 if data:
+                    print(f"---------Start of {name}-------")
                     pprint(data)
-                    
+                    print(f"---------End of {name}---------")
 
 
 if __name__ == '__main__':

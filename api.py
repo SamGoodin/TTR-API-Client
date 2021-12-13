@@ -19,9 +19,15 @@ class API:
         self.pop_url = "https://www.toontownrewritten.com/api/population"
         self.last_pop_time = None
 
-    def __send_request(self, url, params):
-        r = requests.get(url=url, params=params)
+    def __send_request(self, url):
+        r = requests.get(url=url, params={'User-Agent': 'SamGoodin-MasterMax | Independent Dev'})
         return r.json()
+
+    def __login(self, url, headers, data):
+        x = requests.post(url=url, data=data)
+
+    def login(self):
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     def get_invasions(self):
         """
@@ -39,14 +45,15 @@ class API:
             }
         }
         """
-        data = self.__send_request(self.inv_url, {'User-Agent': 'SamGoodin-MasterMax | Independent Dev'})
+        data = self.__send_request(self.inv_url)
         if data['error']:
             print(f"Invasion Error: {data['error']}")
-        if data['lastUpdated'] != self.last_inv_time:
+            return None, None
+        elif data['lastUpdated'] != self.last_inv_time:
             self.last_inv_time = data['lastUpdated']
-            return data['invasions']
+            return data['invasions'], "Invasions"
         else:
-            return None
+            return None, None
 
     def get_field_offices(self):
         """
@@ -65,12 +72,12 @@ class API:
             }
         }
         """
-        data = self.__send_request(self.fo_url, {'User-Agent': 'SamGoodin-MasterMax | Independent Dev'})
+        data = self.__send_request(self.fo_url)
         if data['lastUpdated'] != self.last_fo_time:
             self.last_fo_time = data['lastUpdated']
-            return data['fieldOffices']
+            return data['fieldOffices'], "Field Offices"
         else:
-            return None
+            return None, None
 
     def get_population(self):
         """
@@ -81,14 +88,39 @@ class API:
             'lastUpdated': timestamp of last queried data
         }
         """
-        data = self.__send_request(self.pop_url, {'User-Agent': 'SamGoodin-MasterMax | Independent Dev'}) 
+        data = self.__send_request(self.pop_url) 
         if data['error']:
-            print(f"Invasion Error: {data['error']}")
-        if data['lastUpdated'] != self.last_pop_time:
+            print(f"Population Error: {data['error']}")
+            return None, None
+        elif data['lastUpdated'] != self.last_pop_time:
             self.last_pop_time = data['lastUpdated']
-            return data
+            return data, "Population"
         else:
-            return None
+            return None, None
+            
+    def get_silly_meter(self):
+        """
+        Response: {
+            'state': current state of silly meter,
+            'hp': number,
+            'rewards': list of 3 silly teams,
+            'rewardDescriptions: list of descriptions for teams,
+            'winner': winning silly team,
+            'rewardPoints': points each silly team has acquired,
+            'nextUpdate': time in seconds until silly meter updates in game,
+            'error': None or string,
+            'asOf': timestamp of last queried data
+        }
+        """
+        data = self.__send_request(self.pop_url) 
+        if data['error']:
+            print(f"Silly Meter Error: {data['error']}")
+            return None, None
+        elif data['asOf'] != self.last_sm_time:
+            self.last_sm_time = data['asOf']
+            return data, "Silly Meter"
+        else:
+            return None, None
 
 if __name__ == '__main__':
     api = API()
