@@ -46,10 +46,11 @@ class API:
         }
         """
         data = self.__send_request(self.inv_url)
-        if data['error']:
-            print(f"Invasion Error: {data['error']}")
-            return None, None
-        elif data['lastUpdated'] != self.last_inv_time:
+        if 'error' in data.keys():
+            if data['error']:
+                print(f"Invasion Error: {data['error']}")
+                return None, None
+        if data['lastUpdated'] != self.last_inv_time:
             self.last_inv_time = data['lastUpdated']
             return data['invasions'], "Invasions"
         else:
@@ -89,10 +90,12 @@ class API:
         }
         """
         data = self.__send_request(self.pop_url) 
-        if data['error']:
-            print(f"Population Error: {data['error']}")
-            return None, None
-        elif data['lastUpdated'] != self.last_pop_time:
+        print(data)
+        if 'error' in data.keys():
+            if data['error']:
+                print(f"Population Error: {data['error']}")
+                return None, None
+        if data['lastUpdated'] != self.last_pop_time:
             self.last_pop_time = data['lastUpdated']
             return data, "Population"
         else:
@@ -112,11 +115,12 @@ class API:
             'asOf': timestamp of last queried data
         }
         """
-        data = self.__send_request(self.pop_url) 
-        if data['error']:
-            print(f"Silly Meter Error: {data['error']}")
-            return None, None
-        elif data['asOf'] != self.last_sm_time:
+        data = self.__send_request(self.sm_url) 
+        if 'error' in data.keys():
+            if data['error']:
+                print(f"Silly Meter Error: {data['error']}")
+                return None, None
+        if data['asOf'] != self.last_sm_time:
             self.last_sm_time = data['asOf']
             return data, "Silly Meter"
         else:
